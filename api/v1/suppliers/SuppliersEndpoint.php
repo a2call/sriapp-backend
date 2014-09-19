@@ -36,22 +36,20 @@ $app->post("/", "authenticate", function() use($app) {
 
 
 //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-$app->get('/(:id)', "authenticate", function($id = "") use($app) {
+$app->get('/getAll', "authenticate", function() use($app) {
 
-    $suppliers = array();
+    $since = $app->request->get("since");
+    $suppliers = SuppliersService::getAllSuppliersSince($since);
 
-    if(!empty($id)) {
-        $supplier = SuppliersService::load($id);
-        if(!empty($supplier)) {
-            array_push($suppliers, $supplier);
-        } else {
-            $response["errorMessage"] = "Proveedor no encontrado.";
-        }
-    } else {
-        $suppliers = SuppliersService::loadAll();
+    //Get last records hashOn for newSince
+    $newSince = $since;
+    if(count($suppliers) > 0) {
+        $supplier = $suppliers[count($suppliers) - 1];
+        $newSince = $supplier->hashOn + 1;
     }
 
     $response["suppliers"] = $suppliers;
+    $response["newSince"] = $newSince;
     echoResponse(200, $response);
 
 });

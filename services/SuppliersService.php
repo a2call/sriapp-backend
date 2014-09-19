@@ -37,6 +37,25 @@ class SuppliersService {
         return $suppliers;
     }
 
+    static function getAllSuppliersSince($since) {
+        global $userId;
+
+        $suppliers = array();
+        $results = DB::query(
+            "SELECT * FROM "
+                . SupplierTable::$TABLE_NAME
+            . " WHERE "
+                . SupplierTable::$HASH_ON . " > " . $since
+                . " AND " . SupplierTable::$USER_ID . " = " . $userId
+            . " ORDER BY "
+            . SupplierTable::$HASH_ON . " ASC"
+        );
+        foreach ($results as $record) {
+            array_push($suppliers, SuppliersService::supplierfromCursor($record));
+        }
+        return $suppliers;
+    }
+
     static function insert(Supplier $supplier) {
         DB::insert(SupplierTable::$TABLE_NAME, array(
             SupplierTable::$ID => $supplier->id,

@@ -34,6 +34,25 @@ class PurchasesServices {
         return $purchases;
     }
 
+    static function getAllPurchasesSince($since) {
+        global $userId;
+
+        $purchases = array();
+        $results = DB::query(
+            "SELECT * FROM "
+            . PurchaseTable::$TABLE_NAME
+            . " WHERE "
+            . PurchaseTable::$HASH_ON . " > " . $since
+            . " AND " . PurchaseTable::$USER_ID . " = " . $userId
+            . " ORDER BY "
+            . PurchaseTable::$HASH_ON . " ASC"
+        );
+        foreach ($results as $record) {
+            array_push($purchases, PurchasesServices::purchaseFromCursor($record));
+        }
+        return $purchases;
+    }
+
     static function purchaseFromCursor($cursor) {
         $purchase = new Purchase();
 

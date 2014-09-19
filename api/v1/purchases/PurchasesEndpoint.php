@@ -33,22 +33,20 @@ $app->post("/", "authenticate", function() use($app) {
 });
 
 
-$app->get('/(:id)', "authenticate", function($id = "") use($app) {
+$app->get('/getAll', "authenticate", function() use($app) {
 
-    $purchases = array();
+    $since = $app->request->get("since");
+    $purchases = PurchasesServices::getAllPurchasesSince($since);
 
-    if(!empty($id)) {
-        $purchase = PurchasesServices::load($id);
-        if(!empty($purchase)) {
-            array_push($purchases, $purchase);
-        } else {
-            $response["errorMessage"] = "Compra no encontrada.";
-        }
-    } else {
-        $purchases = PurchasesServices::loadAll();
+    //Get last records hashOn for newSince
+    $newSince = $since;
+    if(count($purchases) > 0) {
+        $purchase = $purchases[count($purchases) - 1];
+        $newSince = $purchase->hashOn + 1;
     }
 
     $response["purchases"] = $purchases;
+    $response["newSince"] = $newSince;
     echoResponse(200, $response);
 
 });
